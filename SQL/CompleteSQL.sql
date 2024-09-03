@@ -90,11 +90,11 @@ DROP TABLE IF EXISTS Shipment;
 CREATE TABLE IF NOT EXISTS Shipment(
 shipmentId varchar(50) NOT NULL,
 orderId varchar(40) NOT NULL,
+CompanyName varchar(255),
 productName varchar(40),
 shippingAddress varchar(200),
 shipmentStatus boolean default false
 );
-
 
 															-- TRIGGERS-- 
  
@@ -124,6 +124,7 @@ BEGIN
     DECLARE max_id INT;
     SELECT COALESCE(MAX(CAST(SUBSTRING(CustomerId, 7) AS UNSIGNED)), 0) INTO max_id FROM Customer;
     SET NEW.CustomerId = CONCAT('B2BCID', LPAD(max_id + 1, 4, '0'));
+    SET NEW.DateOfReg = date_format(CURDATE(), '%d-%m-%Y');
 END;
 //
 
@@ -266,14 +267,15 @@ FOR EACH ROW
 BEGIN
     DECLARE Address VARCHAR(255);
     IF OLD.paymentVerified != NEW.paymentVerified THEN
-        SELECT CONCAT(od.address1, ', ', od.address2, ', ', od.city, ', ', od.state, ', ', od.landmark, ', ', od.zip_code) INTO Address
+        SELECT CONCAT(od.address1, ', ', od.address2, ', ', od.city, ', ', od.state, ', ', od.landmark, ', ', od.pinCode) INTO Address
         FROM orderdetails od
         JOIN transactions t ON od.orderId = t.orderId
         WHERE t.transId = NEW.transId;
-        INSERT INTO shipment (OrderId, ProductName, shippingAddress)
-        SELECT od.orderId, od.product_name, Address
+        INSERT INTO shipment (OrderId, CompanyName, ProductName, shippingAddress)
+        SELECT od.orderId, c.CompanyName, od.productName, Address
         FROM orderdetails od
         JOIN transactions t ON od.orderId = t.orderId
+        JOIN customer c ON od.customerId = c.customerId
         WHERE t.transId = NEW.transId;
     END IF;
 END;
@@ -281,23 +283,21 @@ END;
 
 DELIMITER ;
 
-
-
 																-- INSERTION--  
                                                                         
                                                                         
-INSERT INTO Customer (CompanyName, PAN, gstNo, Email, `Password`, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pincode, DateOfReg) 
+INSERT INTO Customer (CompanyName, PAN, gstNo, Email, `Password`, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pincode) 
 VALUES 
-('Tech Innovations Inc.', 'AAACT1234F', '29ABCDE1234F1Z5', 'contact@techinnovations.com', 'password123', '9876543210', '0123456789', '123 Tech Park', 'Suite 456', 'California', 'San Francisco', 'Near Tech Tower', '94105', '2024-01-15'),
-('Gadget World Ltd.', 'AABCB5678G', '19XYZZ6789L2A1', 'info@gadgetworld.com', 'password456', '8765432109', '0987654321', '456 Gadget Road', 'Floor 3', 'New York', 'New York', 'Next to Gadget Mall', '10001', '2024-02-20'),
-('Hardware Solutions Co.', 'AABCD6789H', '27HJKE2345G9R8', 'support@hardwaresolutions.com', 'password789', '7654321098', '2345678901', '789 Hardware Avenue', '', 'Texas', 'Austin', 'Behind Hardware Park', '73301', '2024-03-25'),
-('Device Enterprises', 'AACDE7890I', '37LMNO0987C7V6', 'sales@deviceenterprises.com', 'password012', '6543210987', '3456789012', '101 Device Boulevard', 'Unit 2', 'Florida', 'Miami', 'Opposite Device Plaza', '33101', '2024-04-30'),
-('Component Supply LLC', 'AABEF8901J', '45PQRS7654H3J9', 'contact@componentsupply.com', 'password345', '5432109876', '4567890123', '202 Component Crescent', 'Apt 5B', 'Ohio', 'Cleveland', 'Near Component Park', '44101', '2024-05-10'),
-('Electro Goods Corp.', 'AABFG9012K', '11TUVW5432M8K1', 'service@electrogoods.com', 'password678', '4321098765', '5678901234', '303 Electro Parkway', 'Suite 10', 'Illinois', 'Chicago', 'Adjacent to Electro Mall', '60601', '2024-06-15'),
-('Accessory Zone Ltd.', 'AABGH0123L', '22XYZZ1234D9S5', 'support@accessoryzone.com', 'password901', '3210987654', '6789012345', '404 Accessory Street', 'Floor 4', 'Michigan', 'Detroit', 'Close to Accessory Hub', '48201', '2024-07-20'),
-('Tool Makers Inc.', 'AABIJ1234M', '33ABCDE8765F3K2', 'info@toolmakers.com', 'password234', '2109876543', '7890123456', '505 Tool Lane', '', 'Georgia', 'Atlanta', 'Near Tool Center', '30301', '2024-08-25'),
-('Device World LLC', 'AABJK2345N', '44FGHI0987L5N4', 'contact@deviceworld.com', 'password567', '1098765432', '8901234567', '606 Device Plaza', 'Suite 8A', 'Arizona', 'Phoenix', 'Adjacent to Device Tower', '85001', '2024-09-30'),
-('Component city Corp.', 'AABKL3456O', '55JKLM6543P2Q8', 'service@componentcity.com', 'password890', '9876543210', '9012345678', '707 Component Road', 'Unit 6C', 'Washington', 'Seattle', 'Near Component HQ', '98101', '2024-10-15');
+('Tech Innovations Inc.', 'AAACT1234F', '29ABCDE1234F1Z5', 'contact@techinnovations.com', 'password123', '9876543210', '0123456789', '123 Tech Park', 'Suite 456', 'California', 'San Francisco', 'Near Tech Tower', '94105'),
+('Gadget World Ltd.', 'AABCB5678G', '19XYZZ6789L2A1', 'info@gadgetworld.com', 'password456', '8765432109', '0987654321', '456 Gadget Road', 'Floor 3', 'New York', 'New York', 'Next to Gadget Mall', '10001'),
+('Hardware Solutions Co.', 'AABCD6789H', '27HJKE2345G9R8', 'support@hardwaresolutions.com', 'password789', '7654321098', '2345678901', '789 Hardware Avenue', '', 'Texas', 'Austin', 'Behind Hardware Park', '73301'),
+('Device Enterprises', 'AACDE7890I', '37LMNO0987C7V6', 'sales@deviceenterprises.com', 'password012', '6543210987', '3456789012', '101 Device Boulevard', 'Unit 2', 'Florida', 'Miami', 'Opposite Device Plaza', '33101'),
+('Component Supply LLC', 'AABEF8901J', '45PQRS7654H3J9', 'contact@componentsupply.com', 'password345', '5432109876', '4567890123', '202 Component Crescent', 'Apt 5B', 'Ohio', 'Cleveland', 'Near Component Park', '44101'),
+('Electro Goods Corp.', 'AABFG9012K', '11TUVW5432M8K1', 'service@electrogoods.com', 'password678', '4321098765', '5678901234', '303 Electro Parkway', 'Suite 10', 'Illinois', 'Chicago', 'Adjacent to Electro Mall', '60601'),
+('Accessory Zone Ltd.', 'AABGH0123L', '22XYZZ1234D9S5', 'support@accessoryzone.com', 'password901', '3210987654', '6789012345', '404 Accessory Street', 'Floor 4', 'Michigan', 'Detroit', 'Close to Accessory Hub', '48201'),
+('Tool Makers Inc.', 'AABIJ1234M', '33ABCDE8765F3K2', 'info@toolmakers.com', 'password234', '2109876543', '7890123456', '505 Tool Lane', '', 'Georgia', 'Atlanta', 'Near Tool Center', '30301'),
+('Device World LLC', 'AABJK2345N', '44FGHI0987L5N4', 'contact@deviceworld.com', 'password567', '1098765432', '8901234567', '606 Device Plaza', 'Suite 8A', 'Arizona', 'Phoenix', 'Adjacent to Device Tower', '85001'),
+('Component city Corp.', 'AABKL3456O', '55JKLM6543P2Q8', 'service@componentcity.com', 'password890', '9876543210', '9012345678', '707 Component Road', 'Unit 6C', 'Washington', 'Seattle', 'Near Component HQ', '98101');
 
 
 INSERT INTO orderDetails (customerId, productId, productName, productQuantity, productType, dateOfOrder, totalAmount, invoiceUrl
@@ -341,7 +341,6 @@ INSERT INTO Transactions (orderId, accountNo, transactionId, dateOfTransaction, 
 ('B2BHUB0006', 'ACC567890123', 'TXN006', '2024-08-25', 'credit', 'INV006', '9000.00', 'Debit Card', true, false, NULL),
 ('B2BHUB0008', 'ACC789012345', 'TXN008', '2024-08-23', 'credit', 'INV008', '8200.00', 'UPI', true, false, NULL),
 ('B2BHUB0010', 'ACC901234567', 'TXN010', '2024-08-21', 'credit', 'INV010', '1100.00', 'Debit Card', true, false, NULL);
-
 
 
 													-- PROCEDURE--
