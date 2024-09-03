@@ -6,7 +6,9 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const Queries = require("../SQL/Queries/Queries.json");
+const sendOrderMessage = require('../WhatsapMsgService/SendOrderDetails.js');
 
+//const whatsappToCustomer = require('../WhatsapMsgService/sendOrderDetailsToCustomer.js');
 
 
 router.post('/customerreg', async (req, res) => {
@@ -121,14 +123,22 @@ router.get('/getUser/:id', async (req, res) => {
 });
 
 
+// app.get('/send-whatsappmsg',async (req,res)=>{
+//     await sendWhatsappMessage("Test Solutions","7075965619","ord123456","Black UradDal","120",10560000.00,"https://res.cloudinary.com/dtgnotkh7/image/upload/v1725293713/xjfc6zzp5jshlvdghz5r.pdf")
+//     res.send("message sent")
+// })
+
+
 router.post('/orders/:customerId', async (req, res) => {
     try {
         await connection.query(Queries.orderQueries.createOrderTable);
         const {
-            gstNo, productName, productQuantity, productType, requestedSample, dateOfOrder, totalAmount, invoiceUrl
+            gstNo, productName, productQuantity, productType, totalAmount, invoiceUrl
         } = req.body;
         const customerId = req.params.customerId
         const productId = await connection.query("SELECT productId FROM Product WHERE productName = ?", [productName])
+        const CompanyName = await connection.query("SELECT CompanyName FROM Customer WHERE customerId = ?", [customerId])
+        console.log(CompanyName[0][0].CompanyName)
         //const formatDate = dateOfOrder? new Date(dateOfOrder).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         function getCurrentDateWithoutTime() {
             const date = new Date();
@@ -139,8 +149,19 @@ router.post('/orders/:customerId', async (req, res) => {
         }
 
         await connection.query(Queries.orderQueries.insertOrder, [
-            customerId, gstNo, productId[0][0].productId, productName, productQuantity, productType, requestedSample, getCurrentDateWithoutTime(), totalAmount, invoiceUrl
-        ])
+            customerId,CompanyName[0][0].CompanyName, gstNo, productId[0][0].productId, productName, productQuantity, productType, getCurrentDateWithoutTime(), totalAmount, invoiceUrl
+        ])  
+          
+        await sendOrderMessage(
+            CompanyName[0][0].CompanyName, 
+            '9347639776',
+            ' ', 
+            productName, 
+            productQuantity, 
+            totalAmount, 
+            invoiceUrl
+        );
+        res.send({ message: "Order created successfully" });
     } catch (err) {
         console.error(err);
         res.status(500).send({ message: "Order creation failed", error: err });

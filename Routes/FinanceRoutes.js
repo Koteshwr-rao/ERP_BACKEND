@@ -95,7 +95,7 @@ router.get('/getAllTransactions', async (req, res) => {
         const [results] = await connection.query(query);
         return res.status(200).send(results);
     } catch (error) {
-        console.log("Error in the getAllTransactions endpoint:", error);
+        console.log("Error in the get all Transactions:", error);
         return res.status(500).send({
             error: "Internal Server error..."
         });
