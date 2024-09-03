@@ -52,11 +52,17 @@
 
         "createInvoiceTable" : "CREATE TABLE IF NOT EXISTS Invoice(invoiceId varchar(255) primary key, invoiceLink varchar(255), invoiceDate varchar(25), orderId varchar(255), transId varchar(255) default null)",
     
-        "insertInvoiceTable" : "INSERT INTO Invoice( invoiceLink, invoiceDate, orderId, transId) VALUES ( ?, ?, ?, ?)"
+        "insertInvoiceTable" : "INSERT INTO Invoice( invoiceLink, invoiceDate, orderId, transId) VALUES ( ?, ?, ?, ?)",
+
+        "getAllInvoices" : "SELECT i.invoiceId as 'invoiceId', c.CompanyName as 'companyName', od.orderId as 'orderId', od.totalAmount, i.invoiceDate as 'invoiceDate',  od.paymentStatus, i.invoiceLink from invoice i JOIN orderDetails od on od.orderId = i.orderId JOIN customer c ON c.customerId = od.customerId"
 
     },
+
     "shipmentQueries" : {
-        "createShipmentTable" : "CREATE TABLE IF NOT EXISTS Shipment(shipmentId varchar(50) NOT NULL, orderId varchar(40) NOT NULL, productName varchar(40), shippingAddress varchar(200), shipmentStatus boolean default false)"
+       
+        "createShipmentTable" : "CREATE TABLE IF NOT EXISTS Shipment(shipmentId varchar(50) NOT NULL, orderId varchar(40) NOT NULL, CompanyName varchar(255), productName varchar(40), shippingAddress varchar(200), shipmentStatus boolean default false)",
+       
+        "getShipmentTables" : "SELECT * FROM shipment"
     }
     
 }
