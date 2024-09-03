@@ -11,7 +11,10 @@
     
         "getCustomerBygstNo" : "SELECT * FROM Customer WHERE gstNo = ?",
     
-        "updatePassword":"UPDATE Customer SET Password = ? WHERE CustomerId = ?"
+        "updatePassword":"UPDATE Customer SET Password = ? WHERE CustomerId = ?",
+
+        "getCustomers": "SELECT c.customerId, c.CompanyName, c.Email, c.gstNo, COUNT(od.orderId) AS orderCount FROM Customer c LEFT JOIN OrderDetails od ON c.customerId = od.customerId GROUP BY c.customerId ORDER BY c.DateOfReg DESC"
+          
 
     },
 
@@ -31,7 +34,11 @@
 
     "getOrderId": "SELECT * FROM orderDetails WHERE orderId = ?",
 
-    "updatePayment": "UPDATE orderDetails SET payment_verified = true WHERE orderId = ?"
+    "updatePayment": "UPDATE orderDetails SET payment_verified = true WHERE orderId = ?",
+
+    "getStateSales" : "SELECT state, COUNT(orderId) AS orderCount FROM orderDetails GROUP BY state",
+
+    "getCustomerOrders": "SELECT * FROM orderDetails WHERE customerId = ?"
 
     },
 
@@ -44,7 +51,10 @@
         "getAllTransactions": "SELECT c.CompanyName AS 'Customer Name',t.accountNo AS 'Account Number',t.invoiceNo AS 'Invoice Number',DATE_ADD(od.dateOfOrder, INTERVAL 10 DAY)  AS 'Due Date' ,t.amount AS 'Amount',t.paymentStatus AS 'Payment Status'FROM Transactions t JOIN orderdetails od ON t.orderId = od.orderId JOIN customer c ON od.customerId = c.customerId;",
           
 
-        "insertTransactions": "INSERT INTO Transactions (orderId, accountNo, transactionId, dateOfTransaction, transactionType, amount) VALUES (?, ?, ?, ?, ?, ?)"
+        "insertTransactions": "INSERT INTO Transactions (orderId, accountNo, transactionId, dateOfTransaction, transactionType, amount) VALUES (?, ?, ?, ?, ?, ?)",
+
+        "getTransactionSumByDay": "SELECT SUM(amount) FROM Transactions WHERE STR_TO_DATE(dateOfTransaction, '%Y-%m-%d') = CURDATE()"
+
 
     },
 

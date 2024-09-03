@@ -103,6 +103,5 @@ router.get('/getAllTransactions', async (req, res) => {
         });
     }
 });
-
 module.exports = router
 
