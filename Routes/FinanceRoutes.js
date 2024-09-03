@@ -48,25 +48,23 @@ router.post('/customerreg', async (req, res) => {
 });
 
 
-router.post('/cusReg', upload.single('file'), async (req, res) => {
+router.post('/customer-bulk-registration', upload.single('file'), async (req, res) => {
     const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const customers = xlsx.utils.sheet_to_json(worksheet);
   
     try {
       await connection.query(Queries.customerQueries.createCustomerTable);
-  
       for (const customer of customers) {
+
         let { 
-             CompanyName, PAN, gstNo, Email, Password, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pinCode, DateOfReg
+             CompanyName, PAN, gstNo, Email, phoneNo
         } = customer;
-  
-        await connection.query( Queries.customerQueries.insertCustomer, [
+        console.log(customer)
+        await connection.query( Queries.customerQueries.insertExcel, [
             
-            CompanyName, PAN, gstNo, Email, Password, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pinCode, DateOfReg
+            CompanyName, PAN, gstNo, Email, PAN, phoneNo
         ])
-  
-        console.log(`Customer ${customer.CompanyName} added successfully`);
       }
   
       res.send({ message: "Customers added successfully" });

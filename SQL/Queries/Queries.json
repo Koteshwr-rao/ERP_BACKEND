@@ -1,9 +1,11 @@
 {
     "customerQueries": {
 
-        "createCustomerTable" : "CREATE TABLE IF NOT EXISTS Customer(customerId VARCHAR(255) NOT NULL PRIMARY KEY, CompanyName VARCHAR(200) default null, PAN VARCHAR(200) default null, gstNo VARCHAR(255) default null, Email VARCHAR(255), Password VARCHAR(255) DEFAULT NULL, phoneNo VARCHAR(50) NOT NULL, TelephoneNo VARCHAR(50) DEFAULT NULL, address1 VARCHAR(300) default null, address2 VARCHAR(300) default null, landmark VARCHAR(255) default null, city VARCHAR(100) default null, state VARCHAR(100) default null, pinCode VARCHAR(100) default null, DateOfReg VARCHAR(40))",
+        "createCustomerTable" : "CREATE TABLE IF NOT EXISTS Customer(customerId VARCHAR(255) , CompanyName VARCHAR(200), PAN VARCHAR(200), gstNo VARCHAR(255) , Email VARCHAR(255) UNIQUE, Password VARCHAR(255) default null, phoneNo VARCHAR(50) , TelephoneNo VARCHAR(50) DEFAULT NULL, address1 VARCHAR(300) default null, address2 VARCHAR(300) default null, landmark VARCHAR(255) default null, city VARCHAR(100) default null, state VARCHAR(100) default null, pinCode VARCHAR(100) default null, DateOfReg VARCHAR(40))",
         
         "insertCustomer": "INSERT INTO Customer (CompanyName, PAN, gstNo, Email, Password, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pinCode, DateOfReg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+
+        "insertExcel": "INSERT INTO Customer (CompanyName, PAN, gstNo, Email, Password, phoneNo) VALUES (?, ?, ?, ?, ?, ?)",
     
         "getCustomerById" : "SELECT * FROM Customer WHERE CustomerId = ?",
     
@@ -43,7 +45,8 @@
 
     "transactionQueries" : {
 
-        "createTransactionTable" : "CREATE TABLE IF NOT EXISTS Transactions(transId varchar(255) primary key, orderId varchar(255), accountNo varchar(255), transactionId varchar(255), dateOfTransaction varchar(255), transactionType varchar(255) default 'credit', invoiceNo varchar(255), amount varchar(255), paymentMode varchar(255), paymentStatus boolean default true, paymentVerified boolean default false,paymentApprovedDate varchar(255))",
+        "createTransactionTable" : "CREATE TABLE IF NOT EXISTS Transactions(transId varchar(255) primary key ,orderId varchar(255), accountNo varchar(255), transactionId varchar(255), dateOfTransaction varchar(255), transactionType varchar(255) default 'credit', invoiceNo varchar(255), amount varchar(255), paymentMode varchar(255), paymentStatus boolean default true, paymentVerified boolean default false,paymentApprovedDate varchar(255))",
+
 
         "getTransactionTable": "SELECT * FROM Transactions WHERE orderId = ?",
 
