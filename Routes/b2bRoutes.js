@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const connection = require("../database");
+const xlsx = require('xlsx');
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const Queries = require("../SQL/Queries/Queries.json");
 
 
@@ -28,6 +32,36 @@ router.post('/customerreg', async (req, res) => {
         res.status(500).send({ message: "User creation failed", error: err });
     }
 });
+
+
+router.post('/cusReg', upload.single('file'), async (req, res) => {
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const customers = xlsx.utils.sheet_to_json(worksheet);
+  
+    try {
+      await connection.query(Queries.customerQueries.createCustomerTable);
+  
+      for (const customer of customers) {
+        let { 
+             CompanyName, PAN, gstNo, Email, Password, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pinCode, DateOfReg
+        } = customer;
+  
+        await connection.query( Queries.customerQueries.insertCustomer, [
+            
+            CompanyName, PAN, gstNo, Email, Password, phoneNo, TelephoneNo, address1, address2, state, city, landmark, pinCode, DateOfReg
+        ])
+  
+        console.log(`Customer ${customer.CompanyName} added successfully`);
+      }
+  
+      res.send({ message: "Customers added successfully" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({ error: "An error occurred while adding customers" });
+    }
+  });
+  
 
   
 router.route('/login/:pan/:pwd').get(async (req, res) => {
