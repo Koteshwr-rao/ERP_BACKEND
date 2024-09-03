@@ -6,7 +6,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const Queries = require("../SQL/Queries/Queries.json");
-const sendOrderMessage = require('../WhatsapMsgService/SendOrderDetails.js');
+//const sendOrderMessage = require('../WhatsapMsgService/SendOrderDetails.js');
 
 //const whatsappToCustomer = require('../WhatsapMsgService/sendOrderDetailsToCustomer.js');
 
@@ -152,15 +152,15 @@ router.post('/orders/:customerId', async (req, res) => {
             customerId,CompanyName[0][0].CompanyName, gstNo, productId[0][0].productId, productName, productQuantity, productType, getCurrentDateWithoutTime(), totalAmount, invoiceUrl
         ])  
           
-        await sendOrderMessage(
-            CompanyName[0][0].CompanyName, 
-            '9347639776',
-            ' ', 
-            productName, 
-            productQuantity, 
-            totalAmount, 
-            invoiceUrl
-        );
+        // await sendOrderMessage(
+        //     CompanyName[0][0].CompanyName, 
+        //     '9347639776',
+        //     ' ', 
+        //     productName, 
+        //     productQuantity, 
+        //     totalAmount, 
+        //     invoiceUrl
+        // );
         res.send({ message: "Order created successfully" });
     } catch (err) {
         console.error(err);
