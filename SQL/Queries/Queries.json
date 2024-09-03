@@ -15,7 +15,6 @@
 
         "getCustomers": "SELECT c.customerId, c.CompanyName, c.Email, c.gstNo, COUNT(od.orderId) AS orderCount FROM Customer c LEFT JOIN OrderDetails od ON c.customerId = od.customerId GROUP BY c.customerId ORDER BY c.DateOfReg DESC"
           
-
     },
 
     "productQueries" : {
